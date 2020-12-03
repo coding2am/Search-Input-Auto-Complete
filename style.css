@@ -1,0 +1,38 @@
+body {
+    background-color: teal;
+}
+.container {
+    margin-top: 100px;
+    max-width: 500px;
+}
+
+.resultContainer {
+    height: 100%;
+    background-color: #fff;
+}
+
+.productItemContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding:  10px;
+    height: 50px;
+    border-bottom:1px solid lightgray;
+}
+
+.autoCompleteInput {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.productName {
+    font-size: 14px;
+    width: 80%;
+
+}
+
+.productImage {
+    height: 80%;
+
+}
