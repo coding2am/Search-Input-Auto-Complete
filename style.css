@@ -36,3 +36,8 @@ body {
     height: 80%;
 
 }
+.detailImg {
+    height:30%;
+    width:30%;
+    object-fit: cover;
+}

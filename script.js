@@ -1,4 +1,4 @@
-//Products
+/* Products */
 const products = [
   {
     id: 1,
@@ -187,44 +187,179 @@ const products = [
     image: "https://fakestoreapi.com/img/61pHAEJ4NML._AC_UX679_.jpg",
   },
 ];
-
+/* Selecting Element Tag */
 const autoCompleteInputTag = document.getElementsByClassName(
   "autoCompleteInput"
 )[0];
 const resultContainerTag = document.getElementsByClassName(
   "resultContainer"
 )[0];
+const detailContainerTag = document.getElementsByClassName(
+  "detailContainer"
+)[0];
 
-autoCompleteInputTag.addEventListener("keyup", (event) => {
-  const searchKeyWord = event.target.value.toLowerCase();
-  //   console.log(searchKeyWord);
-  const filteredProducts = products.filter((product) => {
-    let productTitle = product.title.toLocaleLowerCase();
-    return productTitle.includes(searchKeyWord);
-  });
+/* Functions */
 
-  const hasProductsToShow = filteredProducts.length > 0;
-  resultContainerTag.innerHTML = "";
-  if (hasProductsToShow) {
-    if (searchKeyWord.length === 0) {
+let validProducts = [];
+let indexToSelect = -1;
+
+/* Item Detail Function */
+const itemDetail = (index) => {
+  //reseting
+  autoCompleteInputTag.value = "";
+  indexToSelect = -1;
+  detailContainerTag.innerHTML = "";
+  //getting id
+  const productToSelect = validProducts[index].id;
+  resultContainerTag.style.display = "none";
+  const card = document.createElement("div");
+  card.classList.add("card", "p-3", "bg-light", "border-dark");
+
+  const chooseProduct = products.filter((product) => {
+    return product.id === productToSelect;
+  })[0];
+  detailContainerTag.style.display = "block";
+  const image = document.createElement("img");
+  const title = document.createElement("h5");
+  const category = document.createElement("h5");
+  const price = document.createElement("h5");
+  const description = document.createElement("p");
+  //image
+  image.src = chooseProduct.image;
+  image.classList.add("detailImg");
+  //title
+  title.innerText = "Name: " + chooseProduct.title;
+  title.classList.add("text-info");
+  //category
+  category.innerText = "Category: " + chooseProduct.category;
+  category.classList.add("text-info");
+  //price
+  price.innerText = "Price: $-" + chooseProduct.price;
+  price.classList.add("text-success");
+  //description
+  description.innerText = "Description: " + chooseProduct.description;
+  description.classList.add("text-muted");
+
+  //appending
+  card.append(title, category, price, image, description);
+  detailContainerTag.append(card);
+};
+
+/* Select Function */
+const selectProduct = (index) => {
+  const productIndexToSelect = validProducts[index].id.toString();
+  const productToSelect = document.getElementById(productIndexToSelect);
+  productToSelect.style.backgroundColor = "#237BFF";
+  productToSelect.style.color = "white";
+  productToSelect.classList.add("selected");
+};
+
+/* Deselect Function */
+const deselectProduct = () => {
+  const productToDeselect = document.getElementsByClassName("selected")[0];
+  productToDeselect.style.backgroundColor = "white";
+  productToDeselect.style.color = "black";
+  productToDeselect.classList.remove("selected");
+};
+
+/* Key Press Function */
+const navigateAndSelectProduct = (key, keywords) => {
+  if (key === "ArrowDown") {
+    if (indexToSelect === validProducts.length - 1) {
+      indexToSelect = -1;
+      deselectProduct();
       return;
     }
+    indexToSelect += 1;
+    selectProduct(indexToSelect);
+    if (indexToSelect > 0) {
+      deselectProduct();
+    }
+  } else if (key === "ArrowUp") {
+    if (indexToSelect === -1) {
+      return;
+    }
+    if (indexToSelect === 0) {
+      deselectProduct();
+      indexToSelect = -1;
+      return;
+    }
+    indexToSelect -= 1;
+    deselectProduct();
+    selectProduct(indexToSelect);
+  } else if ("Backspace") {
+    if (keywords === "") {
+      resultContainerTag.innerHTML = "";
+    }
+  } else {
+    itemDetail(indexToSelect);
+  }
+};
 
-    for (let i = 0; i < filteredProducts.length; i++) {
+/* Hover & Click Function */
+const productHoverClick = (index) => {
+  const productID = validProducts[index].id.toString();
+  const currentProduct = document.getElementById(productID);
+
+  //hover in
+  currentProduct.addEventListener("mouseover", () => {
+    currentProduct.style.backgroundColor = "#237BFF";
+    currentProduct.style.color = "white";
+  });
+  //hover out
+  currentProduct.addEventListener("mouseout", () => {
+    currentProduct.style.backgroundColor = "white";
+    currentProduct.style.color = "black";
+  });
+  //click
+  currentProduct.addEventListener("click", () => {
+    itemDetail(index);
+  });
+};
+
+/* Main Process ( Input Search) */
+autoCompleteInputTag.addEventListener("keyup", (event) => {
+  //style switch
+  resultContainerTag.style.display = "block";
+  detailContainerTag.style.display = "none";
+  if (
+    event.key === "ArrowUp" ||
+    event.key === "ArrowDown" ||
+    event.key === "Backspace" ||
+    event.key === "Enter"
+  ) {
+    navigateAndSelectProduct(event.key, event.target.value);
+    return;
+  }
+  const searchKeyWords = event.target.value.toLowerCase();
+  if (event.target.value.length === 0) {
+    return;
+  }
+
+  validProducts = products.filter((product) => {
+    const productTitle = product.title.toLowerCase();
+    return productTitle.includes(searchKeyWords);
+  });
+
+  const hasProductsToShow = validProducts.length > 0;
+  if (hasProductsToShow) {
+    resultContainerTag.innerHTML = "";
+    for (let i = 0; i < validProducts.length; i++) {
       const productItemContainer = document.createElement("div");
-      productItemContainer.id = filteredProducts[i].id;
+      productItemContainer.id = validProducts[i].id;
       productItemContainer.classList.add("productItemContainer");
 
       const productName = document.createElement("div");
       productName.classList.add("productName");
-      productName.append(filteredProducts[i].title);
+      productName.append(validProducts[i].title);
 
       const productImage = document.createElement("img");
       productImage.classList.add("productImage");
-      productImage.src = filteredProducts[i].image;
+      productImage.src = validProducts[i].image;
 
       productItemContainer.append(productName, productImage);
       resultContainerTag.append(productItemContainer);
+      productHoverClick(i);
     }
   }
 });
